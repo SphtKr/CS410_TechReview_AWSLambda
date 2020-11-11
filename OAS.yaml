@@ -1,0 +1,141 @@
+openapi: 3.0.1
+info:
+  title: MeTA Information Retrieval Demo
+  description: 'This is an example search service implemented with the MeTA toolkit and metapy bindings.'
+  #termsOfService: http://...
+  #contact:
+  #  email: apiteam@swagger.io
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 0.1.0
+externalDocs:
+  description: MeTA Toolkit
+  url: https://meta-toolkit.org
+servers:
+- url: https://petstore.swagger.io/v2
+tags:
+- name: search
+  description: Search the index
+paths:
+  /search:
+    post:
+      tags:
+      - search
+      summary: Retrieve results for a given query
+      operationId: search
+      requestBody:
+        description: Search parameters
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryParams'
+        required: true
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/QueryResult'
+        405:
+          description: Invalid input
+          content: {}
+      security:
+      - search_auth:
+        - read:index
+      x-codegen-request-body-name: body
+  /search/{query}:
+    get:
+      tags:
+      - search
+      summary: Retrieve results for a given query
+      description: Multiple status values can be provided with comma separated strings
+      operationId: findPetsByStatus
+      parameters:
+      - name: query
+        in: path
+        description: Query content
+        required: true
+        style: label
+        explode: true
+        schema:
+          type: string
+      - name: top
+        in: query
+        description: Return this many results (pagination)
+        schema:
+          type: integer
+          minimum: 1
+          default: 10
+      - name: skip
+        in: query
+        description: Skip this many results (pagination)
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/QueryResult'
+        400:
+          description: Invalid query
+          content: {}
+      security:
+      - search_auth:
+        - read:index
+components:
+  schemas:
+    QueryParams:
+      type: object
+      properties:
+        query:
+          type: string
+          description: Query content
+        top:
+          type: integer
+          format: int32
+          default: 10
+          description: Return this many results (pagination)
+        skip:
+          type: integer
+          format: int32
+          default: 0
+          description: Skip this many results (pagination)
+      xml:
+        name: Order
+    QueryResult:
+      type: object
+      properties:
+        doc_id:
+          type: integer
+          format: int64
+          description: The internal index document ID
+        url:
+          type: string
+          format: url
+          description: The URL of the page matching the query
+        score:
+          type: number
+          description: Score assigned for the document by the ranker
+  securitySchemes:
+    search_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: http://petstore.swagger.io/oauth/dialog
+          scopes:
+            write:pets: modify pets in your account
+            read:pets: read your pets
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header

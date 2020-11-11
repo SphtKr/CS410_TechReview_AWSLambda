@@ -1,0 +1,61 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  metapy-ir-demo
+
+  Sample SAM Template for metapy-ir-demo
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  MetaPyIRDemoGetFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: metapy-ir-demo/
+      Handler: app.lambda_handler_get
+      Runtime: python3.6
+      Events:
+        MetaPyIRDemo:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /search/{query}
+            Method: get
+  MetaPyIRDemoPostFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: metapy-ir-demo/
+      Handler: app.lambda_handler_post
+      Runtime: python3.6
+      Events:
+        MetaPyIRDemo:
+          Type: Api
+          Properties:
+            Path: /search
+            Method: post
+
+Outputs:
+  MetaPyIRDemoGetFunction:
+    Description: "Lambda Function ARN"
+    Value: !GetAtt MetaPyIRDemoGetFunction.Arn
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  MetaPyIRDemoGetFunctionApi:
+    Description: "API Gateway endpoint URL for Prod stage for MeTA IR Demo GET function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/search/"
+  MetaPyIRDemoGetFunctionIamRole:
+    Description: "Implicit IAM Role created for function"
+    Value: !GetAtt MetaPyIRDemoGetFunctionRole.Arn
+  MetaPyIRDemoPostFunction:
+    Description: "POST Function ARN"
+    Value: !GetAtt MetaPyIRDemoPostFunction.Arn
+  MetaPyIRDemoPostFunctionApi:
+    Description: "API Gateway endpoint URL for Prod stage for MeTA IR Demo POST function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/search"
+  MetaPyIRDemoPostFunctionIamRole:
+    Description: "IAM Role created for POST function"
+    Value: !GetAtt MetaPyIRDemoPostFunctionRole.Arn
+
