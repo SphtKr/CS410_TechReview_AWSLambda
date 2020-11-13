@@ -1,0 +1,9 @@
+prefix = "/mnt/data"
+index = "/mnt/data/idx"
+corpus = "line.toml"
+stop-words = "/mnt/data/lemur-stopwords.txt"
+dataset = "faculty"
+[[analyzers]]
+	filter = "default-unigram-chain"
+	ngram = 1
+	method = "ngram-word"

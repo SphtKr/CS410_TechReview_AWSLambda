@@ -1,6 +1,6 @@
 .aws-sam
-venv
-data
+./venv
+./data
 samconfig.toml
 
 # Created by https://www.gitignore.io/api/osx,linux,python,windows,pycharm,visualstudiocode

@@ -10,13 +10,54 @@ Globals:
   Function:
     Timeout: 3
 
+Parameters:
+  SecurityGroupIds:
+    Type: CommaDelimitedList
+    Description: The security group(s) to allow the Function access to the EFS access point
+  SubnetIDs:
+    Type: CommaDelimitedList
+    Description: The list of SubnetIDs in your Virtual Private Cloud (VPC)
+  EFSpath:
+    Type: String
+    Default: /mnt/data
+  AccessPointARN:
+    Type: String
+    Description: Access point ARN
+
+
 Resources:
   MetaPyIRDemoGetFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: metapy-ir-demo/
       Handler: app.lambda_handler_get
-      Runtime: python3.6
+      Runtime: python3.7
+      VpcConfig:
+        SecurityGroupIds: !Ref SecurityGroupIds
+        SubnetIds: !Ref SubnetIDs
+      FileSystemConfigs:
+      - Arn: !Ref AccessPointARN
+        LocalMountPath: !Ref EFSpath
+      Policies:
+      - Statement:
+        - Sid: AWSLambdaVPCAccessExecutionRole
+          Effect: Allow
+          Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            - ec2:CreateNetworkInterface
+            - ec2:DescribeNetworkInterfaces
+            - ec2:DeleteNetworkInterface
+          Resource: "*"
+        - Sid: AmazonElasticFileSystemClientFullAccess
+          Effect: Allow
+          Action:
+            - elasticfilesystem:ClientMount
+            - elasticfilesystem:ClientRootAccess
+            - elasticfilesystem:ClientWrite
+            - elasticfilesystem:DescribeMountTargets
+          Resource: "*"
       Events:
         MetaPyIRDemo:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
@@ -28,7 +69,33 @@ Resources:
     Properties:
       CodeUri: metapy-ir-demo/
       Handler: app.lambda_handler_post
-      Runtime: python3.6
+      Runtime: python3.7
+      VpcConfig:
+        SecurityGroupIds: !Ref SecurityGroupIds
+        SubnetIds: !Ref SubnetIDs
+      FileSystemConfigs:
+      - Arn: !Ref AccessPointARN
+        LocalMountPath: !Ref EFSpath
+      Policies:
+      - Statement:
+        - Sid: AWSLambdaVPCAccessExecutionRole
+          Effect: Allow
+          Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+            - ec2:CreateNetworkInterface
+            - ec2:DescribeNetworkInterfaces
+            - ec2:DeleteNetworkInterface
+          Resource: "*"
+        - Sid: AmazonElasticFileSystemClientFullAccess
+          Effect: Allow
+          Action:
+            - elasticfilesystem:ClientMount
+            - elasticfilesystem:ClientRootAccess
+            - elasticfilesystem:ClientWrite
+            - elasticfilesystem:DescribeMountTargets
+          Resource: "*"
       Events:
         MetaPyIRDemo:
           Type: Api

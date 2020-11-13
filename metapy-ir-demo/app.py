@@ -45,7 +45,7 @@ def lambda_handler(event, context):
 
     #     raise e
 
-    cfg = "./data/idx/inv/config.toml"
+    cfg = "./config.toml"
 
     # Depending on the request/call mechanism, some of these event properties may not exist...
     bodyJson = event.get("body", "{}")
@@ -59,7 +59,7 @@ def lambda_handler(event, context):
     top = body.get("top", 10)
     skip = body.get("skip", 0)
     print("query: {}   top: {}   skip {}".format(query, top, skip))
-    print("cwd: {}   files: {}".format(os.getcwd(), os.listdir('.')))
+    print("cwd: {}   files: {}".format(os.getcwd(), os.listdir('/mnt/data')))
     
     idx = metapy.index.make_inverted_index(cfg)
     ranker = metapy.index.OkapiBM25(k1=1.91,b=0.74,k3=500)
