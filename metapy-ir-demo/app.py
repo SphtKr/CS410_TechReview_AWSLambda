@@ -6,6 +6,11 @@ def lambda_handler_post(event, context):
     return lambda_handler(event, context)
 
 def lambda_handler_get(event, context):
+    # With full API integration, GET calls actually come as POST!...
+    if(event.get("httpMethod","") == "POST"):
+        #print("Got POST to lambda_handler_get!")
+        return lambda_handler(event, context)
+
     qsParams = event.get("queryStringParameters", {} ) or {}
     body = {
         "query": event.get("pathParameters", {}).get("query", ""),
@@ -56,10 +61,10 @@ def lambda_handler(event, context):
     #top = int(body.get("top",  qsParams.get("top", 10)))
     #skip = int(body.get("skip",  qsParams.get("skip", 0)))
     query = body.get("query", "")
-    top = body.get("top", 10)
-    skip = body.get("skip", 0)
+    top = int(body.get("top", 10))
+    skip = int(body.get("skip", 0))
     print("query: {}   top: {}   skip {}".format(query, top, skip))
-    print("cwd: {}   files: {}".format(os.getcwd(), os.listdir('/mnt/data')))
+    #print("cwd: {}   files: {}".format(os.getcwd(), os.listdir('/mnt/data')))
     
     idx = metapy.index.make_inverted_index(cfg)
     ranker = metapy.index.OkapiBM25(k1=1.91,b=0.74,k3=500)
